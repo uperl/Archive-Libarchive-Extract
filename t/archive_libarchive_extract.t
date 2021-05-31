@@ -69,6 +69,12 @@ subtest 'extract' => sub {
         'files',
       );
 
+      is(
+        [$extract->entry_list],
+        ['archive/','archive/bar.txt','archive/foo.txt'],
+        'entry_list'
+      );
+
       ok(-d $extract->to);
 
     };
@@ -123,6 +129,12 @@ subtest 'extract' => sub {
         };
       },
       'files',
+    );
+
+    is(
+      [$extract->entry_list],
+      ['archive/foo.txt'],
+      'entry_list'
     );
 
   };
