@@ -19,7 +19,7 @@ It also supports some unique features of the various classes that use the "Extra
 
 - Many Many formats
 
-    compressed tar, Zip, RAR, ISO 9660 images, etc.
+    Tar, Zip, RAR, ISO 9660 images, gzip, bzip2, etc.
 
 - Zips with encrypted entries
 
@@ -60,6 +60,20 @@ This creates a new instance of the Extract object.
 
     This option is the passphrase for encrypted zip entries, or a
     callback which will return the passphrase.
+
+- entry
+
+    ```perl
+    my $extract = Archive::Libarchive::Extract->new( entry => sub ($e) {
+      ...
+      return $bool;
+    });
+    ```
+
+    This callback will be called for each entry in the archive, and will pass in the
+    entry metadata via `$e` which is a [Archive::Libarchive::Entry](https://metacpan.org/pod/Archive::Libarchive::Entry) instance.  If the
+    callback returns a true value, then the entry will be extracted, otherwise it will
+    be skipped.
 
 # PROPERTIES
 

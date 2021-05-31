@@ -28,7 +28,7 @@ It also supports some unique features of the various classes that use the "Extra
 
 =item Many Many formats
 
-compressed tar, Zip, RAR, ISO 9660 images, etc.
+Tar, Zip, RAR, ISO 9660 images, gzip, bzip2, etc.
 
 =item Zips with encrypted entries
 
@@ -68,6 +68,18 @@ This option is required, and is the filename of the archive.
 This option is the passphrase for encrypted zip entries, or a
 callback which will return the passphrase.
 
+=item entry
+
+ my $extract = Archive::Libarchive::Extract->new( entry => sub ($e) {
+   ...
+   return $bool;
+ });
+
+This callback will be called for each entry in the archive, and will pass in the
+entry metadata via C<$e> which is a L<Archive::Libarchive::Entry> instance.  If the
+callback returns a true value, then the entry will be extracted, otherwise it will
+be skipped.
+
 =back
 
 =cut
@@ -83,9 +95,13 @@ sub new ($class, %options)
       unless -r $filename;
   }
 
+  Carp::croak("Entry is not a code reference")
+    if defined $options{entry} && !is_plain_coderef $options{entry};
+
   my $self = bless {
     filename   => delete $options{filename},
     passphrase => delete $options{passphrase},
+    entry      => delete $options{entry},
   }, $class;
 
   Carp::croak("Illegal options: @{[ sort keys %options ]}")
@@ -210,6 +226,12 @@ sub extract ($self, %options)
   while(1)
   {
     last unless $self->_entry($r, $e);
+    if(defined $self->{entry} && !$self->{entry}->($e))
+    {
+      $r->read_data_skip;
+      next;
+    }
+
     my $ret = $dw->write_header($e);
     if($ret == ARCHIVE_WARN)
     {

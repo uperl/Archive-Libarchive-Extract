@@ -4,6 +4,7 @@ use Path::Tiny qw( path );
 use File::Temp qw( tempdir );
 use Ref::Util qw( is_plain_coderef );
 use File::chdir;
+use experimental qw( signatures );
 
 is(
   dies { Archive::Libarchive::Extract->new },
@@ -99,6 +100,32 @@ subtest 'extract' => sub {
 
     };
   }
+
+  subtest 'entry callback' => sub {
+
+    my $to = tempdir(CLEANUP => 1);
+
+    my $extract = Archive::Libarchive::Extract->new( filename => 'corpus/archive.tar', entry => sub ($e) {
+      note $e->pathname;
+      return $e->pathname eq 'archive/foo.txt' ? 1 : 0;
+    });
+
+    try_ok { $extract->extract( to => $to ) };
+
+      is(
+        path($to // $CWD),
+        object {
+          call [child => 'archive/foo.txt'] => object {
+            call slurp_utf8 => "hello\n";
+          };
+          call [child => 'archive/bar.txt'] => object {
+            call sub { -f $_[0] } => F();
+          };
+        },
+        'files',
+      );
+
+  };
 
 };
 
