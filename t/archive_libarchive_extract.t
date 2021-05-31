@@ -2,6 +2,7 @@ use Test2::V0 -no_srand => 1;
 use Archive::Libarchive::Extract;
 use Path::Tiny qw( path );
 use File::Temp qw( tempdir );
+use Ref::Util qw( is_plain_coderef );
 use File::chdir;
 
 is(
@@ -71,6 +72,32 @@ subtest 'extract' => sub {
 
     };
 
+  }
+
+  foreach my $passphrase ('password', sub { 'password' })
+  {
+    subtest "passphrase @{[ is_plain_coderef($passphrase) ? 'code' : 'string' ]}" => sub {
+
+      my $to = tempdir(CLEANUP => 1);
+
+      my $extract = Archive::Libarchive::Extract->new( filename => 'corpus/archive.zip', passphrase => $passphrase );
+
+      try_ok { $extract->extract( to => $to ) };
+
+      is(
+        path($to // $CWD),
+        object {
+          call [child => 'archive/foo.txt'] => object {
+            call slurp_utf8 => "hello\n";
+          };
+          call [child => 'archive/bar.txt'] => object {
+            call slurp_utf8 => "there\n";
+          };
+        },
+        'files',
+      );
+
+    };
   }
 
 };
