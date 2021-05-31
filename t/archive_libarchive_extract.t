@@ -86,7 +86,7 @@ subtest 'extract' => sub {
       try_ok { $extract->extract( to => $to ) };
 
       is(
-        path($to // $CWD),
+        path($to),
         object {
           call [child => 'archive/foo.txt'] => object {
             call slurp_utf8 => "hello\n";
@@ -112,18 +112,55 @@ subtest 'extract' => sub {
 
     try_ok { $extract->extract( to => $to ) };
 
-      is(
-        path($to // $CWD),
-        object {
-          call [child => 'archive/foo.txt'] => object {
-            call slurp_utf8 => "hello\n";
-          };
-          call [child => 'archive/bar.txt'] => object {
-            call sub { -f $_[0] } => F();
-          };
-        },
-        'files',
-      );
+    is(
+      path($to),
+      object {
+        call [child => 'archive/foo.txt'] => object {
+          call slurp_utf8 => "hello\n";
+        };
+        call [child => 'archive/bar.txt'] => object {
+          call sub { -f $_[0] } => F();
+        };
+      },
+      'files',
+    );
+
+  };
+
+  subtest 'multi-file RAR archive' => sub {
+
+    my $to = tempdir(CLEANUP => 1);
+
+    my @filenames = qw(
+      corpus/test_read_splitted_rar_aa
+      corpus/test_read_splitted_rar_ab
+      corpus/test_read_splitted_rar_ac
+      corpus/test_read_splitted_rar_ad
+    );
+
+    my $extract = Archive::Libarchive::Extract->new( filename => \@filenames, entry => sub ($e) {
+      note $e->pathname;
+      # lets not muck with the thorny subject of symlinks on windows
+      return 0 if $^O =~ /^(MSWin32|msys|cygwin)$/
+               && $e->filetype !~ /^(reg|dir)$/;
+      return 1;
+    });
+
+    try_ok { $extract->extract( to => $to ) };
+
+    is(
+      path($to),
+      object {
+        call [child => 'test.txt' ] => object {
+          call slurp_utf8 => match qr/^test text docume/;
+        };
+        call [child => 'testdir/test.txt' ] => object {
+          call slurp_utf8 => match qr/^test text docume/;
+        };
+      },
+      'files',
+    );
+
 
   };
 
