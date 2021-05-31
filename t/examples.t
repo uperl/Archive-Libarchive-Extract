@@ -26,4 +26,8 @@ use experimental qw( signatures );
   }, { recurse => 1});
 }
 
+unlink 'examples/archive/foo.txt';
+unlink 'examples/archive/bar.txt';
+rmdir 'examples/archive';
+
 done_testing;

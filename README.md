@@ -7,7 +7,8 @@ An archive extracting mechanism (using libarchive)
 ```perl
 use Archive::Libarchive::Extract;
 
-# TODO
+my $extract = Archive::Libarchive::Extract->new( filename => 'archive.tar' );
+$extract->extract;
 ```
 
 # DESCRIPTION
