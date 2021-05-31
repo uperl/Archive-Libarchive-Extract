@@ -8,7 +8,7 @@ use Carp ();
 use File::chdir;
 use Path::Tiny ();
 use 5.020;
-use experimental qw( signatures );
+use experimental qw( signatures postderef );
 
 # ABSTRACT: An archive extracting mechanism (using libarchive)
 # VERSION
@@ -135,6 +135,19 @@ sub to ($self)
   return $self->{to};
 }
 
+=head2 entry_list
+
+ my @list = $extract->entry_list;
+
+The list of entry pathnames that were extracted.
+
+=cut
+
+sub entry_list ($self)
+{
+  return $self->{entry_list}->@*;
+}
+
 =head1 METHODS
 
 =head2 extract
@@ -231,6 +244,8 @@ sub extract ($self, %options)
       $r->read_data_skip;
       next;
     }
+
+    push $self->{entry_list}->@*, $e->pathname;
 
     my $ret = $dw->write_header($e);
     if($ret == ARCHIVE_WARN)

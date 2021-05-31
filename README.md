@@ -87,6 +87,14 @@ This is the archive filename for the Extract object.
 The full path location the entries were extracted to.  If ["extract"](#extract) hasn't been called yet,
 then this will be `undef`
 
+## entry\_list
+
+```perl
+my @list = $extract->entry_list;
+```
+
+The list of entry pathnames that were extracted.
+
 # METHODS
 
 ## extract
