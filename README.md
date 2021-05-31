@@ -1,4 +1,4 @@
-# Archive::Libarchive::Extract ![linux](https://github.com/uperl/Archive-Libarchive-Extract/workflows/linux/badge.svg)
+# Archive::Libarchive::Extract ![linux](https://github.com/uperl/Archive-Libarchive-Extract/workflows/linux/badge.svg) ![windows](https://github.com/uperl/Archive-Libarchive-Extract/workflows/windows/badge.svg)
 
 An archive extracting mechanism (using libarchive)
 
