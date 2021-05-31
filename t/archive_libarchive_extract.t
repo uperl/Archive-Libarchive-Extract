@@ -50,7 +50,7 @@ subtest 'extract' => sub {
       my $extract = Archive::Libarchive::Extract->new( filename => "$tarball" );
       isa_ok $extract, 'Archive::Libarchive::Extract';
 
-      ok(!-d $extract->to);
+      ok(! do { no warnings; -d $extract->to } );
 
       try_ok { $extract->extract( to => $to ) };
 

@@ -19,6 +19,28 @@ use experimental qw( signatures );
 
 =head1 DESCRIPTION
 
+This class provides a simple interface for extracting archives using C<libarchive>.  Although it provides similar
+functionality to L<Archive::Extract> and L<Archive::Extract::Libarchive> it intentionally does not provide a
+compatible interface.  In particular it tends to throw exceptions instead tracking errors as a property.
+It also supports some unique features of the various classes that use the "Extract" style interface:
+
+=over 4
+
+=item Many Many formats
+
+compressed tar, Zip, RAR, ISO 9660 images, etc.
+
+=item Zips with encrypted entries
+
+You can specify the passphrase or a passphrase callback with the constructor
+
+=item Multi-file RAR archives
+
+If filename is an array reference it will be assumed to be a list of filenames
+representing a single multi-file archive.
+
+=back
+
 =head1 CONSTRUCTOR
 
 =head2 new
@@ -245,3 +267,30 @@ sub extract ($self, %options)
 }
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Archive::Extract>
+
+The original!
+
+=item L<Archive::Extract::Libarchive>
+
+Another implementation that also relies on C<libarchive>, but doesn't support
+the file type in iterate mode, encrypted zip entries, or multi-file RAR archives.
+
+=item L<Archive::Libarchive::Peek>
+
+An interface for peeking into archives without extracting them to the local filesystem.
+
+=item L<Archive::Libarchive>
+
+A lower-level interface to C<libarchive> which can be used to read/extract and create
+archives of various formats.
+
+=back
+
+=cut
+
