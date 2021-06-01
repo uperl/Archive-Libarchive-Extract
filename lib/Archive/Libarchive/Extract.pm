@@ -259,10 +259,10 @@ sub extract ($self, %options)
 
     if($e->size > 0)
     {
-      my $buffer;
       my $offset;
       while(1)
       {
+        my $buffer;
         $ret = $r->read_data_block(\$buffer, \$offset);
         last if $ret == ARCHIVE_EOF;
         if($ret == ARCHIVE_WARN)
@@ -273,6 +273,7 @@ sub extract ($self, %options)
         {
           Carp::croak($dw->error_string);
         }
+        last unless defined $buffer;
 
         $ret = $dw->write_data_block(\$buffer, $offset);
         if($ret == ARCHIVE_WARN)
