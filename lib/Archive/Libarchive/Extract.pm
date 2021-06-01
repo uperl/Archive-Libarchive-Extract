@@ -2,7 +2,7 @@ package Archive::Libarchive::Extract;
 
 use strict;
 use warnings;
-use Archive::Libarchive 0.03 qw( ARCHIVE_OK ARCHIVE_WARN ARCHIVE_EOF ARCHIVE_EXTRACT_TIME ARCHIVE_EXTRACT_PERM ARCHIVE_EXTRACT_ACL ARCHIVE_EXTRACT_FFLAGS );
+use Archive::Libarchive 0.04 qw( ARCHIVE_OK ARCHIVE_WARN ARCHIVE_EOF ARCHIVE_EXTRACT_TIME ARCHIVE_EXTRACT_PERM ARCHIVE_EXTRACT_ACL ARCHIVE_EXTRACT_FFLAGS );
 use Ref::Util qw( is_plain_coderef is_plain_arrayref );
 use Carp ();
 use File::chdir;
@@ -260,10 +260,11 @@ sub extract ($self, %options)
     if($e->size > 0)
     {
       my $buffer;
+      my $offset;
       while(1)
       {
-        $ret = $r->read_data(\$buffer);
-        last if $ret == 0;
+        $ret = $r->read_data_block(\$buffer, \$offset);
+        last if $ret == ARCHIVE_EOF;
         if($ret == ARCHIVE_WARN)
         {
           Carp::carp($r->erorr_string);
@@ -273,10 +274,10 @@ sub extract ($self, %options)
           Carp::croak($dw->error_string);
         }
 
-        $ret = $dw->write_data(\$buffer);
+        $ret = $dw->write_data_block(\$buffer, $offset);
         if($ret == ARCHIVE_WARN)
         {
-          Carp::carp($dw->erorr_string);
+          Carp::carp($dw->error_string);
         }
         elsif($ret < ARCHIVE_WARN)
         {
