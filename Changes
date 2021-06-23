@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}},
 
 {{$NEXT}}
+
+0.03      2021-06-23 14:51:01 -0600
   - Add memory option for reading archive directly from memory (gh#3)
 
 0.02      2021-06-01 11:25:24 -0600
